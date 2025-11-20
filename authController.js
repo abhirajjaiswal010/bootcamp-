@@ -1,28 +1,20 @@
-// import User from "../models/user.js";
-// import bcrypt from "bcryptjs";
-// import jwt from "jsonwebtoken";
+const User = require("../models/User.js");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-const User =require('../models/user.js')
-const bcrypt=require('bcryptjs')
-const jwt=require('jsonwebtoken')
-
-//* Register controller
-
-export const signup = async (req, res) => {
+// Register controller
+const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // empty fields check
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    // email check
     const alreadyUser = await User.findOne({ email });
     if (alreadyUser)
       return res.status(400).json({ message: "Email already exists" });
 
-    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
@@ -38,9 +30,8 @@ export const signup = async (req, res) => {
   }
 };
 
-//* Login controller
-
-export const login = async (req, res) => {
+// Login controller
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -55,7 +46,6 @@ export const login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-    // create token
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
@@ -69,4 +59,4 @@ export const login = async (req, res) => {
   }
 };
 
-
+module.exports = { signup, login };
